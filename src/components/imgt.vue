@@ -4,15 +4,15 @@
  * @Author: xiaoka
  * @Date: 2020-04-16 16:59:58
  * @LastEditors: xiaoka
- * @LastEditTime: 2020-04-17 17:36:51
+ * @LastEditTime: 2020-04-27 16:34:44
  -->
 
 <template>
   <div class="container-water-fall">
-    <div class="topbanner">
-      <span>提交</span>
-      <span @click="loadmore">加载更多</span>
-    </div>
+    <!-- <a-layout-header :style="{ background: '#fff', padding: 0, position: 'fixed', top: '0', left: '200px', right: '0',zIndex:'999'}">
+      <a-button type="primary" style="height:100%;float:right" @click="sendresult()">提交</a-button>
+    </a-layout-header> -->
+    <!-- <a-button type="primary" style="position:fixed;top:0;right:0;height:70px;float:right" @click="sendresult()">提交</a-button> -->
     <!-- <div class="btn-group">
       <button @click="loadmore">LoadMore</button>
       <button @click="switchCol(5)">5column(列)</button>
@@ -26,47 +26,81 @@
       >GITHUB</a>
       <b style="color:blue">滚动至底部可触发loadmore</b>
     </div> -->
+    <!-- <a-layout-header :style="{ background: '#fff', padding: 0, position: 'fixed', right: '0'}">
+          <a-button type="primary" style="height:100%;float:right">提交</a-button>
+      </a-layout-header> -->
     <div class="centerbox">
-      <div class="allin">
-        <waterfall class="waterfall" :col="col" :data="imgnew">
+      <!-- <div class="allin"> -->
+        <div class="example" v-if="firstloading==true">
+          <a-spin size="large"/>
+        </div>
+        <a-empty v-if="imgnew.length==0"/>
+        <waterfall class="waterfall" :col="col" :data="imgnew" v-else>
           <template>
-            <div class="cell-item" v-for="(item, index) in imgnew" :key="index">
-              <img v-if="item.path" :src="item.path" alt="加载错误" />
-              <div class="item-body">
-                <div class="item-desc">
-                  <div class="desc-l">
-                    好看：
-                    <input type="radio" :name="'check' + index" value="好看" />
-                  </div>
+            <!-- <a-form :layout="formLayout"> -->
+              <!-- <a-form-item> -->
+                <div class="cell-item" ref="cellItem" id="cell-item"  v-for="(item, index) in imgnew" :key="index" :data-id="item.id">
+                  <img v-if="item.path" :src="item.path" alt="加载错误" />
+                  <div class="item-body">
+                    <div class="item-desc">
+                      <!-- @change="onChange(item.id,$event)" -->
+                      <a-radio-group id="radioGroup" class="radioGroup" :name="'radioGroup'+index"  v-model="item.key">
+                        <a-radio :value="2" ref="radioGroup">通过</a-radio>
+                        <a-radio :value="3" ref="radioGroup">不通过</a-radio>
+                      </a-radio-group>
+                      <!-- <div class="desc-l">
+                        通过：
+                        <input type="radio" :name="'check' + index" value="好看" />
+                      </div>
 
-                  <div class="desc-r">
-                    不好看：<input
-                      type="radio"
-                      :name="'check' + index"
-                      value="不好看"
-                    />
+                      <div class="desc-r">
+                        不通过：<input
+                          type="radio"
+                          :name="'check' + index"
+                          value="不好看"
+                        />
+                      </div> -->
+                      <br />
+                    </div>
+                    <!-- <div class="item-footer">
+                      <div
+                        v-if="item.avatar"
+                        class="avatar"
+                        :style="{backgroundImage : `url(${item.avatar})` }"
+                      ></div>
+                      <div class="name">{{item.user}}</div>
+                      <div class="like" :class="item.liked?'active':''">
+                        <i></i>
+                        <div class="like-total">{{item.like}}</div>
+                      </div>
+                    </div> -->
                   </div>
-                  <br />
                 </div>
-                <!-- <div class="item-footer">
-                  <div
-                    v-if="item.avatar"
-                    class="avatar"
-                    :style="{backgroundImage : `url(${item.avatar})` }"
-                  ></div>
-                  <div class="name">{{item.user}}</div>
-                  <div class="like" :class="item.liked?'active':''">
-                    <i></i>
-                    <div class="like-total">{{item.like}}</div>
-                  </div>
-                </div> -->
-              </div>
-            </div>
+              <!-- </a-form-item> -->
+              <!-- <a-form-item> -->
+                <!-- <a-button type="primary"> -->
+                  <!-- Submit -->
+                <!-- </a-button> -->
+              <!-- </a-form-item> -->
+            <!-- </a-form> -->
           </template>
         </waterfall>
-      </div>
+        <!-- <a-button type="primary" style="position:fixed;z-index:99999;top:0;right:0;height:50px;float:right" @click="sendresult()">提交</a-button> -->
+        <!-- <a-button type="primary" loading>
+          Loading
+        </a-button> -->
+        
+      <!-- </div> -->
     </div>
-    <loading :show="loading" />
+    <div class="addloading" v-if="imgnew.length!==0">
+      <a-button type="primary" v-if="loading===false" @click="loadmore">生成更多</a-button>
+      <a-button type="primary" :loading="loading" v-else>
+        Loading
+      </a-button>
+    </div>
+    <!-- <a-spin class="addloading" :indicator="indicator" /> -->
+    <!-- <a-button type="primary" class="addmore" @click="loadmore" v-if="imgnew.length!==0">生成更多</a-button> -->
+    <!-- <loading :show="loading" /> -->
   </div>
 </template>
 
@@ -78,20 +112,21 @@
 */
 import axios from 'axios'
 axios.defaults.withCredentials = true;
-import loading from "./loading";
+// import loading from "./loading";
 export default {
   name: "imgt",
   props: {
     title: String
   },
   components: {
-    loading
+    // loading
   },
   data() {
     return {
       imgnew:[],
       data: [],
       col: 5,
+      firstloading: true,
       loading: false,
       gitHubData: {},
       originData: [
@@ -359,7 +394,15 @@ export default {
           like: "953"
         }
       ],
-      page:20
+      page:1,
+      pageSize: 20,
+      indicator: <a-icon type="loading" style="font-size: 24px" spin />,
+      value: 3,
+      sendArry:[],
+      index:[],
+      models: [],
+      warnMessage:'',
+      childValue:[]
     };
   },
   computed: {
@@ -373,52 +416,116 @@ export default {
   methods: {
     a() {
       var _this = this
+      _this.firstloading = true
       axios
       .get('//139.129.206.239:7001/api/v1/compose/templates', {
         params: {
-          page: 1,
-          pageSize: _this.page
+          page: _this.page,
+          pageSize: 20
         }
       })
       .then(res => {
-        // resolve(res.data)
-        console.log(res.data.data.templates)
-        _this.imgnew = res.data.data.templates
+        _this.loading = false
+        _this.firstloading = false
+        let arr = res.data.data.templates
+        _this.childValue.passNum = res.data.data.passNum
+        _this.childValue.auditNum = res.data.data.auditNum
+        _this.childValue.total = res.data.data.total
+        console.log(_this.childValue)
+        // arr.sort(function(){
+        //    return Math.random()-0.5;
+        // });
+
+        for(let i = 0;i < arr.length; i++){
+          let item = arr[i]
+          item.key = 1
+          _this.imgnew.push(item)
+          
+          this.$emit('childByValue', this.childValue)
+          // _this.imgnew.push(arr[i])
+          console.log(_this.models)
+          // _this.sendArry.push({id:arr[i].id,status:1})
+        }
+        if(_this.imgnew.length==0){
+          _this.warnMessage = '暂无数据'
+          _this.openNotificationWithIcon('warning')
+        }
+        console.log(_this.imgnew)
       })
       .catch(err => {
+        _this.firstloading = false
         console.log(err)
       })
-      // axios({
-      //   //格式a
-      //   method: "get",
-      //   url: "http://www.baidu.com?name=tom&age=23"
-      // })
-      //   .then(function(resp) {
-      //     console.log(resp.data);
-      //   })
-      //   .catch(resp => {
-      //     console.log("请求失败：" + resp.status + "," + resp.statusText);
-      //   });
-      // var _this=this;
-      // _this.$ajax.post(
-      //   `../static/tsconfig.json`,
-      //   _this.$qs.stringify({
-      //     sname:'hahaha'
-      //   })
-      // )
-      //   .then(res=> {
-      //     let data=res.data.data;
-      //     console.log(data.description)
-      //   })
-      //   .catch(error=>{
-      //     console.log(error)
-      //   })
     },
-    toGitHub() {
-      window.open(
-        "https://github.com/Rise-Devin/vue-waterfall2/blob/master/README.md",
-        "_blank"
-      );
+    // onChange(id,event){
+    //   const b = this.$refs.cellItem.defaultValue
+    //   console.log(b)
+    //   const _this = this
+    //   const value = event.target.value
+    //   const name = event.target.name
+    //   const index = name.charAt(name.length-1)
+    //   console.log(_this.sendArry)
+    //   for(let i = 0;i < _this.imgnew.length; i++){
+    //     console.log(index)
+    //     console.log(i)
+    //     console.log(_this.imgnew[i].id)
+    //     console.log(id)
+    //     if(_this.imgnew[i].id==id){
+    //       console.log(i)
+    //       console.log(_this.imgnew[i])
+    //       _this.imgnew[i].status = value
+    //       _this.index.push(i)
+    //     }
+    //   }
+    //   // if(this.sendArry.length==0){
+    //   //   this.sendArry.push({id:id,status:value})
+    //   // }else{
+    //   //   this.sendArry.push({id:id,status:value})
+    //   //   if(this.sendArry[index].id==id){
+    //       // this.sendArry[index].status = value
+    //   //   }else{
+    //   //     this.sendArry.push({id:id,status:value})
+    //   //   }
+    //   // }
+      
+    //   console.log(this.sendArry)
+    // },
+    sendresult(){
+      var _this = this
+      for(let i = 0;i < _this.imgnew.length; i++){
+        if(_this.imgnew[i].key!=1){
+          _this.sendArry.push({id:_this.imgnew[i].id,status:_this.imgnew[i].key})
+        }
+      }
+      axios
+      .post('//139.129.206.239:7001/api/v1/compose/templates/doFilter', {
+        templates:_this.sendArry
+      })
+      .then(res => {
+        console.log(res.data.code)
+        if(res.data.code==200){
+          _this.warnMessage = '提交成功'
+          _this.openNotificationWithIcon('success')
+          _this.imgnew = []
+          console.log(res)
+          _this.a()
+        }else{
+          _this.warnMessage = '提交失败'
+          _this.openNotificationWithIcon('error')
+        }
+      })
+      .catch(err => {
+        // _this.warnMessage = '提交失败'
+        // _this.openNotificationWithIcon('error')
+        console.log(err)
+      })
+    },
+    openNotificationWithIcon(type) {
+      const _this = this
+      this.$notification[type]({
+        message: _this.warnMessage,
+        placement:'bottomRight'
+      });
     },
     reset() {
       this.data = [];
@@ -432,15 +539,20 @@ export default {
       var _this = this
       this.loading = true;
       setTimeout(() => {
-        _this.page+=20
+        _this.page+=1
         _this.a()
         this.data = this.data.concat(this.originData, this.originData);
-        this.loading = false;
+        // this.loading = false;
       }, 1000);
     }
   },
-  mounted() {
+  created(){
     this.a()
+    console.log(this.models)
+  },
+  mounted() {
+    console.log(this.imgnew)
+    // this.a()
     this.data = this.originData;
   }
 };
@@ -449,10 +561,46 @@ export default {
 * {
   margin: 0;
 }
+.example {
+  text-align: center;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  padding: 30px 50px;
+  margin: 20px 0;
+}
+.popsend{
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  z-index: 999;
+}
+.popsendin{
+  width: 500px;
+  height: 300px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  background-color: white;
+}
+.addmore{
+  width: 150px;
+  text-align: center;
+  font-size: 20px;
+  color: white;
+  margin: 50px auto;
+  background-color: #1ABC9C;
+  border-radius: 50px;
+  padding: 5px 0;
+  cursor: pointer;
+}
 .container-water-fall {
   // padding: 0 28px;
   width: 100%;
   box-sizing: border-box;
+  text-align: center;
   h4 {
     padding-top: 56px;
     padding-bottom: 28px;
@@ -462,25 +610,25 @@ export default {
     letter-spacing: 1px;
     text-align: justify;
   }
-  button {
-    background-color: #ff0;
-    color: #24292e;
-    border: 1px solid rgba(27, 31, 35, 0.2);
-    border-radius: 0.25em;
-    width: 100px;
-    line-height: 26px;
-    font-size: 13px;
-    margin: 4px 0;
-    margin-right: 4px;
-    cursor: pointer;
-    outline: none;
-    &.blue-light {
-      background: #27fbc2;
-    }
-  }
-  button:hover {
-    background-image: linear-gradient(-180deg, #fafbfc, #ccc 90%);
-  }
+  // button {
+  //   background-color: #ff0;
+  //   color: #24292e;
+  //   border: 1px solid rgba(27, 31, 35, 0.2);
+  //   border-radius: 0.25em;
+  //   width: 100px;
+  //   line-height: 26px;
+  //   font-size: 13px;
+  //   margin: 4px 0;
+  //   margin-right: 4px;
+  //   cursor: pointer;
+  //   outline: none;
+  //   &.blue-light {
+  //     background: #27fbc2;
+  //   }
+  // }
+  // button:hover {
+  //   background-image: linear-gradient(-180deg, #fafbfc, #ccc 90%);
+  // }
 
   .cell-item {
     width: 100%;
@@ -490,6 +638,8 @@ export default {
     border-radius: 12px 12px 12px 12px;
     overflow: hidden;
     box-sizing: border-box;
+    transition: all 0.5s;
+    -webkit-transition: all 0.5s;
     img {
       // border-radius: 12px 12px 0 0;
       width: 100%;
@@ -504,10 +654,12 @@ export default {
         color: #333333;
         line-height: 15px;
         font-weight: bold;
+        text-align: center;
       }
       .item-desc > div {
         margin: 0 20px;
-        float: left;
+        // margin: 0 auto;
+        // float: left;
         // vertical-align: middle;
       }
       .item-desc > div > input {
@@ -566,6 +718,10 @@ export default {
     // height: 16px;
   }
 }
+.addloading{
+  // width: 100%;
+  margin: 50px auto;
+}
 .topbanner {
   width: 100%;
   height: 80px;
@@ -583,14 +739,16 @@ export default {
   height: 80px;
   line-height: 80px;
   text-align: center;
-  border: 1px solid red;
+  // border: 1px solid red;
   cursor: pointer;
+  background-color: #1ABC9C;
+  color: white;
 }
-.topbanner span:last-child {
-  float: left;
-}
+// .topbanner span:last-child {
+//   float: left;
+// }
 .centerbox {
-  margin-top: 100px;
+  // padding-top: 100px;
 }
 .allin {
   width: 1500px;
